@@ -1,6 +1,7 @@
 name: release
 # Publish a GitHub release (Releases > Draft a new release > Publish) and this
-# workflow builds Windows + macOS + Linux and attaches them to it.
+# workflow builds Windows + macOS + Linux and attaches each to it as soon as
+# that build finishes (a slow macOS runner no longer holds up the others).
 # Run manually (Actions > release > Run workflow) to just get the builds as artifacts.
 on:
   release:
@@ -25,6 +26,11 @@ jobs:
         run: go build -trimpath -ldflags "-H=windowsgui -s -w" -o gyruss.exe ./cmd/gyruss
       - uses: actions/upload-artifact@v4
         with: {name: gyruss-windows, path: gyruss.exe}
+      - name: Attach to release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" gyruss.exe --clobber --repo "${{ github.repository }}"
 
   mac:
     runs-on: macos-latest
@@ -56,6 +62,11 @@ jobs:
           cd dist && zip -qry ../Gyruss-mac.zip "Gyruss.app"
       - uses: actions/upload-artifact@v4
         with: {name: gyruss-mac, path: Gyruss-mac.zip}
+      - name: Attach to release
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" Gyruss-mac.zip --clobber --repo "${{ github.repository }}"
 
   linux:
     runs-on: ubuntu-latest
@@ -72,15 +83,8 @@ jobs:
           tar -czf Gyruss-linux.tar.gz gyruss
       - uses: actions/upload-artifact@v4
         with: {name: gyruss-linux, path: Gyruss-linux.tar.gz}
-
-  publish:
-    if: github.event_name == 'release'
-    needs: [windows, mac, linux]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with: {path: out, merge-multiple: true}
       - name: Attach to release
+        if: github.event_name == 'release'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${{ github.event.release.tag_name }}" out/gyruss.exe out/Gyruss-mac.zip out/Gyruss-linux.tar.gz --clobber --repo "${{ github.repository }}"
+        run: gh release upload "${{ github.event.release.tag_name }}" Gyruss-linux.tar.gz --clobber --repo "${{ github.repository }}"
