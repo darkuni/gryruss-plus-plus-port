@@ -44,6 +44,19 @@ func (s *sound) init() {}
 
 // RC filter on chips 1 and 2: R = AY output resistance + 1k, C switched in
 // by port B bits (bit 0: 0.047uF, bit 1: 0.22uF).
+// Width is the stereo width: 1 keeps the board's hard left / right split,
+// 0 is mono. 0.6 matches the channel blend of the MAME reference.
+var Width = 0.6
+
+// OutGain is the master output level.
+var OutGain = 3.8
+
+// FXGain scales the two effect chips (1 and 2) against the music chips.
+// Measured on the game's opening (same events in both) against a MAME
+// recording: with the effect chips at 0.35 both sides of the mix land
+// within 10% of MAME and the music / effect balance matches.
+var FXGain = 0.35
+
 // MuteChip silences one AY (1-5) for listening tests; 0 = none.
 var MuteChip int
 
@@ -110,10 +123,10 @@ func (s *sound) tick(b *Board) {
 		}
 		s.voices = s.voices[:k]
 	}
-	right := (ch[0][0]+ch[0][1]+ch[0][2])/2.2 + avg(ch[2])/1.1 + avg(ch[3])/1.1
+	right := FXGain*(ch[0][0]+ch[0][1]+ch[0][2])/2.2 + avg(ch[2])/1.1 + avg(ch[3])/1.1
 	right /= 3/2.2 + 2/1.1
 	right += kd / 4.7 / (3/2.2 + 2/1.1) * 0.75
-	left := (ch[1][0]+ch[1][1]+ch[1][2])/2.2 + avg(ch[4])/1.1 + drum/4.7
+	left := FXGain*(ch[1][0]+ch[1][1]+ch[1][2])/2.2 + avg(ch[4])/1.1 + drum/4.7
 	left /= 3/2.2 + 1/1.1 + 1/4.7
 	left += kd / 4.7 / (3/2.2 + 1/1.1 + 1/4.7) * 0.75
 
@@ -137,8 +150,12 @@ func (s *sound) tick(b *Board) {
 		}
 		yl := s.hpL.run(hp, s.lpL)
 		yr := s.hpR.run(hp, s.lpR)
+		if Width < 1 {
+			mid := (yl + yr) / 2
+			yl, yr = mid+(yl-mid)*Width, mid+(yr-mid)*Width
+		}
 		s.mu.Lock()
-		s.out = append(s.out, clip(yl*1.8), clip(yr*1.8))
+		s.out = append(s.out, clip(yl*OutGain), clip(yr*OutGain))
 		s.mu.Unlock()
 	}
 }

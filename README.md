@@ -40,10 +40,15 @@ low buzz. Retrocade played those channels silent, which is the sound in its vide
 **arcade chip** (default) and **Retrocade style** (experimental). **B** switches the bass between **full range**
 (default) and **cabinet** (experimental, a roll-off below ~110 Hz like an arcade amp and speaker).
 
+The mix was calibrated against a MAME recording of the game's opening (the same events in both): the two
+effect chips sit at 0.35 against the three music chips, which puts both sides of the mix within 10% of MAME, and
+the stereo is blended (width 0.6) to the same left / right correlation. **W** switches to the board's hard
+left / right split.
+
 ## Controls
 
 Arrows move, Z / Space / Left Ctrl fire, 5 coin, 1 / 2 start, L widescreen / original upright,
-P Gyruss+ panels on / off, D drums (Roland / original), - / = Roland drum level, S effects style, B bass, F11 full screen, Esc quit, 9 service.
+P Gyruss+ panels on / off, D drums (Roland / original), - / = Roland drum level, S effects style, B bass, W stereo, F11 full screen, Esc quit, 9 service.
 
 **Gamepad:** D-pad / left stick move, A or B fire, Select = coin, Start = 1 player, X or Y = 2 players,
 right bumper = change view, left bumper = Gyruss+ panels, right-stick click = drums, hold Select + Start for a

@@ -34,6 +34,8 @@ func main() {
 	flag.IntVar(&board.MuteChip, "mutechip", 0, "mute one AY chip 1-5")
 	cab := flag.Bool("cab", false, "cabinet bass roll-off")
 	retro := flag.Bool("retro", false, "Retrocade-style zero-period tones")
+	flag.Float64Var(&board.FXGain, "fx", 0.35, "effect chip gain")
+	flag.Float64Var(&board.Width, "width", 0.6, "stereo width")
 	nod := flag.Bool("nodrum", false, "mute all drums")
 	gain := flag.Float64("gain", 0.8, "kit gain")
 	flag.Parse()
