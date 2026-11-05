@@ -41,13 +41,19 @@ func New() *Chip {
 // Address latches the register number.
 func (c *Chip) Address(v byte) { c.addr = v & 0x0f }
 
+// Addr is the latched register number.
+func (c *Chip) Addr() byte { return c.addr }
+
 // Read returns the latched register (port A goes through PortARead).
 func (c *Chip) Read() byte {
 	if c.addr == 14 && c.Reg[7]&0x40 == 0 && c.PortARead != nil {
 		return c.PortARead()
 	}
-	return c.Reg[c.addr]
+	return c.Reg[c.addr] & readMask[c.addr]
 }
+
+// unused register bits read back as 0 on the AY-3-8910
+var readMask = [16]byte{0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0x1f, 0xff, 0x1f, 0x1f, 0x1f, 0xff, 0xff, 0x0f, 0xff, 0xff}
 
 // Write stores into the latched register.
 func (c *Chip) Write(v byte) {

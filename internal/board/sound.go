@@ -43,6 +43,9 @@ func (s *sound) init() {}
 
 // RC filter on chips 1 and 2: R = AY output resistance + 1k, C switched in
 // by port B bits (bit 0: 0.047uF, bit 1: 0.22uF).
+// MuteChip silences one AY (1-5) for listening tests; 0 = none.
+var MuteChip int
+
 const filtR = 356.0 + 1000.0
 
 var filtAlpha [4]float64
@@ -66,6 +69,9 @@ func (s *sound) tick(b *Board) {
 	for i, c := range b.AY {
 		c.Tick()
 		ch[i][0], ch[i][1], ch[i][2] = c.Output()
+		if MuteChip == i+1 {
+			ch[i] = [3]float64{}
+		}
 	}
 	// switchable RC filters on chips 1 (right) and 2 (left)
 	for chip := 0; chip < 2; chip++ {

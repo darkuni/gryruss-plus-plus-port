@@ -99,6 +99,9 @@ type Board struct {
 	MainHook func(pc uint16)
 
 	FrameCount uint64
+
+	// AYWrite, if set, sees every AY register write (debug).
+	AYWrite func(chip int, reg, v byte)
 }
 
 // New builds a board around a loaded ROM set.
@@ -293,6 +296,9 @@ func (s *audBus) Out(p uint16, v byte) {
 	case p < 0x14 && p&3 == 0:
 		b.AY[p>>2].Address(v)
 	case p < 0x14 && p&3 == 2:
+		if b.AYWrite != nil {
+			b.AYWrite(int(p>>2), b.AY[p>>2].Addr(), v)
+		}
 		b.AY[p>>2].Write(v)
 	case p == 0x14:
 		// start the 8039: it reads the latch and plays that drum

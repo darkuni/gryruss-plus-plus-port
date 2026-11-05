@@ -31,6 +31,7 @@ func main() {
 	play := flag.Bool("play", false, "random play after start")
 	two := flag.Bool("two", false, "start a 2 player game")
 	flag.Bool("inf", false, "infinite lives")
+	flag.IntVar(&board.MuteChip, "mutechip", 0, "mute one AY chip 1-5")
 	nod := flag.Bool("nodrum", false, "mute all drums")
 	gain := flag.Float64("gain", 0.8, "kit gain")
 	flag.Parse()
