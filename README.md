@@ -37,8 +37,8 @@ Two of the game's effects - the swoop when a wave flies in from the centre and t
 second sound chip with a tone period of 0 and the envelope generator on. The real chip treats period 0 as 1,
 so the envelope comes out as a buzz: on the shot a 1.8 second falling drone, on the wave entrance a pulsing
 low buzz. Retrocade played those channels silent, which is the sound in its videos. **S** switches between
-**Retrocade style** (default) and **arcade chip**. **B** switches the bass between **cabinet** (default, a
-roll-off below ~110 Hz like an arcade amp and speaker, matched against a Retrocade recording) and **full range**.
+**arcade chip** (default) and **Retrocade style** (experimental). **B** switches the bass between **full range**
+(default) and **cabinet** (experimental, a roll-off below ~110 Hz like an arcade amp and speaker).
 
 ## Controls
 
