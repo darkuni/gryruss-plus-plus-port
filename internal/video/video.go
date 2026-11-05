@@ -75,20 +75,42 @@ var (
 	divider = color.RGBA{24, 36, 92, 255}
 )
 
-// Landscape builds the widescreen picture from the upright one.
-func Landscape(dst, up *image.RGBA) {
+// clipBlit copies src rectangle r to (dx, dy), keeping it inside the
+// bar x0 .. x1-1.
+func clipBlit(dst, src *image.RGBA, r Rect, dx, dy, x0, x1 int) {
+	if dx < x0 {
+		r.X += x0 - dx
+		r.W -= x0 - dx
+		dx = x0
+	}
+	if dx+r.W > x1 {
+		r.W = x1 - dx
+	}
+	if r.W > 0 {
+		Blit(dst, src, r, dx, dy)
+	}
+}
+
+// Landscape builds the widescreen picture. up is the upright picture, hud
+// the upright picture without sprites, from which the read-outs are taken
+// (so stars and ships flying through the top and bottom rows of the tube
+// don't get copied into the side bars).
+func Landscape(dst, up, hud *image.RGBA) {
 	Fill(dst, Rect{0, 0, LandW, LandH}, black)
 	Blit(dst, up, Rect{0, FieldTop, ScreenW, LandH}, SideW, 0)
+	// left bar: player 1, the stage, reserve ships
+	l0, l1 := 0, SideW-1
+	clipBlit(dst, hud, HudP1, 4, 6, l0, l1)
+	clipBlit(dst, hud, HudStage, 0, 28, l0, l1)
+	clipBlit(dst, hud, HudLives, 0, LandH-20, l0, l1)
+	// right bar: high score, player 2, credits
+	r0, r1 := RightX+1, LandW
+	clipBlit(dst, hud, HudHigh, RightX+1, 6, r0, r1)
+	clipBlit(dst, hud, HudP2, RightX+4, 28, r0, r1)
+	clipBlit(dst, hud, HudCredit, RightX, LandH-12, r0, r1)
+	// dividers last, so nothing can draw over them
 	for y := 0; y < LandH; y++ {
 		dst.SetRGBA(SideW-1, y, divider)
 		dst.SetRGBA(RightX, y, divider)
 	}
-	// left bar: player 1, the stage, reserve ships
-	Blit(dst, up, HudP1, 4, 6)
-	Blit(dst, up, HudStage, 0, 28)
-	Blit(dst, up, HudLives, 0, LandH-20)
-	// right bar: high score, player 2, credits
-	Blit(dst, up, HudHigh, RightX+1, 6)
-	Blit(dst, up, HudP2, RightX+4, 28)
-	Blit(dst, up, HudCredit, RightX, LandH-12)
 }

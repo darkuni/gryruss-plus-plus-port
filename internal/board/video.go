@@ -100,6 +100,7 @@ func (b *Board) renderLine(y int) {
 			front[tx*8+px] = fr
 		}
 	}
+	copy(b.Tiles[y*256:y*256+256], line)
 	spr := b.SubRAM[0x40:0x100]
 	for offs := 0xbc; offs >= 0; offs -= 4 {
 		sy := 241 - int(spr[offs+3])

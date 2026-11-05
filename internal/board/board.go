@@ -78,6 +78,11 @@ type Board struct {
 	// rebuilt line by line as the beam moves, like the real hardware.
 	Frame [256 * 256]byte
 
+	// Tiles is the same picture without sprites (the text / HUD layer),
+	// used to lift the score and status read-outs into the side bars
+	// without sprites that happen to pass over them.
+	Tiles [256 * 256]byte
+
 	snd sound
 	g   *gfx
 	kit *Kit

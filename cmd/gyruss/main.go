@@ -40,6 +40,7 @@ import (
 type app struct {
 	b      *board.Board
 	up     *image.RGBA
+	hud    *image.RGBA
 	land   *image.RGBA
 	screen *ebiten.Image
 	coin   int
@@ -263,7 +264,8 @@ func (a *app) Draw(screen *ebiten.Image) {
 	video.Upright(a.up, a.b.Frame[:], &pal)
 	img := a.up
 	if a.view == 0 {
-		video.Landscape(a.land, a.up)
+		video.Upright(a.hud, a.b.Tiles[:], &pal)
+		video.Landscape(a.land, a.up, a.hud)
 		if a.plus {
 			stats.DrawPanels(a.land, a.tr)
 		}
@@ -474,6 +476,7 @@ func main() {
 	a := &app{
 		b:    b,
 		up:   image.NewRGBA(image.Rect(0, 0, video.ScreenW, video.ScreenH)),
+		hud:  image.NewRGBA(image.Rect(0, 0, video.ScreenW, video.ScreenH)),
 		land: image.NewRGBA(image.Rect(0, 0, video.LandW, video.LandH)),
 		ring: &ring{},
 		view: st.View,
