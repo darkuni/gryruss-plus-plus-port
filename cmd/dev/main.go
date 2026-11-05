@@ -31,6 +31,8 @@ func main() {
 	play := flag.Bool("play", false, "random play after start")
 	two := flag.Bool("two", false, "start a 2 player game")
 	flag.Bool("inf", false, "infinite lives")
+	nod := flag.Bool("nodrum", false, "mute all drums")
+	gain := flag.Float64("gain", 0.8, "kit gain")
 	flag.Parse()
 	r, err := assets.Load(*rom)
 	if err != nil {
@@ -39,11 +41,15 @@ func main() {
 	b := board.New(r)
 	dr := map[byte]int{}
 	if k, err := drums.FromPak(*pak); err == nil {
-		b.SetKit(&board.Kit{Samples: k.Samples, Rate: k.Rate, Gain: 0.45})
+		b.SetKit(&board.Kit{Samples: k.Samples, Rate: k.Rate, Gain: *gain})
 		fmt.Println("kit", len(k.Samples), k.Rate)
 	}
 	b.OnDrum = func(v byte) { dr[v]++; b.TriggerDrum(int(v)) }
 	tr.Attach(b)
+	if *nod {
+		b.SetKit(nil)
+		b.DrumMute = true
+	}
 	inf := flag.Lookup("inf").Value.String() == "true"
 	want := map[int]bool{}
 	for _, s := range strings.Split(*shots, ",") {

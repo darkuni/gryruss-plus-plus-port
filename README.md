@@ -27,8 +27,9 @@ channel. With the Roland kit loaded, command N plays Retrocade's `AudioN` instea
 Retrocade's driver used), the 8039's DAC is muted and the kit is mixed to the centre. **D** (or a click of the
 right stick) switches between the Roland kit and the original 8039 drums at any time; the choice is remembered.
 
-The Roland samples are far hotter than the 8039's, so the kit is mixed a little under the original drums
-(measured by RMS over a game). **-** and **=** turn the kit down / up in 10% steps (0-200%, remembered).
+Like Retrocade's driver (read out of RETRO.EXE), the kit plays on one drum channel: a new hit cuts off the
+drum that was sounding, and command 0 stops it. The level was matched against a recording of Retrocade
+(hi-hat band against melody band). **-** and **=** turn the kit down / up in 10% steps (0-200%, remembered).
 
 ## Controls
 

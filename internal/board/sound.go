@@ -147,26 +147,18 @@ func (b *Board) SetKit(k *Kit) {
 	b.DrumMute = k != nil
 }
 
-// TriggerDrum starts the kit sample for a drum command. The board's
-// 8039 took the same command numbers: N plays drum sound N.
+// TriggerDrum plays the kit sample for a drum command, the way Retrocade's
+// Gyruss driver did: one drum channel, command N plays AudioN and cuts off
+// whatever drum was sounding; command 0 just stops the drum.
 func (b *Board) TriggerDrum(id int) {
 	if b.kit == nil {
 		return
 	}
-	pcm, ok := b.kit.Samples[id]
-	if !ok {
-		return
-	}
 	s := &b.snd
-	// the same drum re-triggered cuts itself off, different drums overlap
-	k := 0
-	for _, v := range s.voices {
-		if v.id != id {
-			s.voices[k] = v
-			k++
-		}
+	s.voices = s.voices[:0]
+	if pcm, ok := b.kit.Samples[id&7]; ok && id&7 != 0 {
+		s.voices = append(s.voices, voice{id: id & 7, pcm: pcm})
 	}
-	s.voices = append(s.voices[:k], voice{id: id, pcm: pcm})
 }
 
 // DrainSamples returns the stereo samples produced since the last call.

@@ -82,8 +82,8 @@ type Board struct {
 	g   *gfx
 	kit *Kit
 
-	// OnDrum, if set, is called whenever the sound CPU sends a drum command
-	// to the 8039 (the value written to the drum latch).
+	// OnDrum, if set, is called whenever the sound CPU starts the 8039 on
+	// a drum command (the value in the drum latch).
 	OnDrum func(cmd byte)
 	// DrumMute silences the original 8039 DAC output (replacement samples
 	// are mixed in instead).
@@ -295,12 +295,13 @@ func (s *audBus) Out(p uint16, v byte) {
 	case p < 0x14 && p&3 == 2:
 		b.AY[p>>2].Write(v)
 	case p == 0x14:
+		// start the 8039: it reads the latch and plays that drum
 		b.Drum.IntLine = true
+		if b.OnDrum != nil {
+			b.OnDrum(b.DrumLatch)
+		}
 	case p == 0x18:
 		b.DrumLatch = v
-		if b.OnDrum != nil {
-			b.OnDrum(v)
-		}
 	}
 }
 
