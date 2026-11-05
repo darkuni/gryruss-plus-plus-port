@@ -10,15 +10,16 @@ This is **not** a routine-by-routine rewrite. It is a native Go port of the whol
 AY-3-8910s and switchable RC filters, the 8039 drum CPU and its DAC, and the tile / sprite video drawn line by
 line. The original ROMs run unmodified on top of it. The ROMs are never included and are loaded at runtime.
 
-## Files you need (not included)
+## Files you need
 
 * **gyruss.zip** - your own copy of the MAME `gyruss` set (the `gyrussce`, `gyrussb` and `venus` sets work too;
   files are matched by CRC). Put it next to the program, in a `roms` folder, the working directory or your home
   folder, or drag it onto the exe. If anything is missing a window lists what.
-* **WAV.PAK** (optional) - Retrocade's sound sample pack. Put it next to the program or in a `wav` folder. The
-  port decodes its `Gyruss/Audio01-06` samples (Retrocade's own lossless format: zlib, then split byte planes
-  of a third-order delta). A folder called `drums` holding `Audio01.wav` ... `Audio06.wav` works as well.
-  Without it the board's original 8039 drums play.
+The Roland drum kit is **built in**: the six `Gyruss/Audio01-06` samples from Retrocade's `WAV.PAK`, included
+with permission and decoded to plain WAV files (`internal/drums/kit`). Retrocade stored them in its own lossless
+format - zlib, then split byte planes of a third-order delta - which `internal/drums/pak.go` decodes. To use your
+own kit, put `Audio01.wav` ... `Audio06.wav` in a `drums` folder next to the program; a `WAV.PAK` can also be
+given on the command line.
 
 ## The drums
 

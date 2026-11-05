@@ -2,9 +2,10 @@
 // layout, with the Roland drum kit that Retrocade's Gyruss driver used.
 //
 // The game needs the original ROM set (gyruss.zip) for its program, graphics
-// and sound; none of Konami's data is bundled with this program. The drum kit
-// is read from Retrocade's WAV.PAK when it is found next to the program (or in
-// a "wav" folder); without it the board's own 8039 drums play.
+// and sound; none of Konami's data is bundled with this program. The Roland
+// drum kit from Retrocade's Gyruss driver is built in (with permission); a
+// "drums" folder of Audio01.wav..Audio07.wav next to the program replaces it,
+// and a WAV.PAK can be given on the command line.
 //
 // Controls: arrows move, Z / Space / Left Ctrl fire, 5 coin, 1 / 2 start,
 // L widescreen / original upright, P Gyruss+ panels, D drums (Roland /
@@ -96,7 +97,7 @@ func (a *app) say(s string) { a.toast, a.toastT = s, 120 }
 
 func (a *app) setDrums(roland bool) {
 	if roland && a.kit == nil {
-		a.say("NO DRUM KIT (WAV.PAK) FOUND")
+		a.say("NO DRUM KIT")
 		roland = false
 	}
 	a.roland = roland
@@ -401,19 +402,15 @@ func findKit() *board.Kit {
 			}
 		}
 	}
+	// a drums folder of AudioNN.wav files lets players swap in their own kit
 	for _, d := range searchDirs() {
-		for _, p := range []string{"WAV.PAK", filepath.Join("wav", "WAV.PAK"), "wav.pak", filepath.Join("wav", "wav.pak")} {
-			if k := try(drums.FromPak(filepath.Join(d, p))); k != nil {
-				return k
-			}
-		}
 		for _, p := range []string{"drums", "gyruss_drums"} {
 			if k := try(drums.FromWavDir(filepath.Join(d, p))); k != nil {
 				return k
 			}
 		}
 	}
-	return nil
+	return try(drums.Builtin(), nil)
 }
 
 // errApp shows a problem in the window, because the Windows build has no
