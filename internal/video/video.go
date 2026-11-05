@@ -98,19 +98,22 @@ func clipBlit(dst, src *image.RGBA, r Rect, dx, dy, x0, x1 int) {
 func Landscape(dst, up, hud *image.RGBA) {
 	Fill(dst, Rect{0, 0, LandW, LandH}, black)
 	Blit(dst, up, Rect{0, FieldTop, ScreenW, LandH}, SideW, 0)
+	// a 2 pixel black gutter each side of the play area keeps the ship,
+	// which flies right up to the edge of the tube, off the dividers
+	const gap = 2
 	// left bar: player 1, the stage, reserve ships
-	l0, l1 := 0, SideW-1
+	l0, l1 := 0, SideW-1-gap
 	clipBlit(dst, hud, HudP1, 4, 6, l0, l1)
 	clipBlit(dst, hud, HudStage, 0, 28, l0, l1)
 	clipBlit(dst, hud, HudLives, 0, LandH-20, l0, l1)
 	// right bar: high score, player 2, credits
-	r0, r1 := RightX+1, LandW
-	clipBlit(dst, hud, HudHigh, RightX+1, 6, r0, r1)
-	clipBlit(dst, hud, HudP2, RightX+4, 28, r0, r1)
-	clipBlit(dst, hud, HudCredit, RightX, LandH-12, r0, r1)
+	r0, r1 := RightX+gap+1, LandW
+	clipBlit(dst, hud, HudHigh, RightX+gap, 6, r0, r1)
+	clipBlit(dst, hud, HudP2, RightX+gap+3, 28, r0, r1)
+	clipBlit(dst, hud, HudCredit, RightX-1, LandH-12, r0, r1)
 	// dividers last, so nothing can draw over them
 	for y := 0; y < LandH; y++ {
-		dst.SetRGBA(SideW-1, y, divider)
-		dst.SetRGBA(RightX, y, divider)
+		dst.SetRGBA(SideW-1-gap, y, divider)
+		dst.SetRGBA(RightX+gap, y, divider)
 	}
 }
