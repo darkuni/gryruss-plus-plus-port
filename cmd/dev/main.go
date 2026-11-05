@@ -39,7 +39,7 @@ func main() {
 	b := board.New(r)
 	dr := map[byte]int{}
 	if k, err := drums.FromPak(*pak); err == nil {
-		b.SetKit(&board.Kit{Samples: k.Samples, Rate: k.Rate, Gain: 1})
+		b.SetKit(&board.Kit{Samples: k.Samples, Rate: k.Rate, Gain: 0.45})
 		fmt.Println("kit", len(k.Samples), k.Rate)
 	}
 	b.OnDrum = func(v byte) { dr[v]++; b.TriggerDrum(int(v)) }

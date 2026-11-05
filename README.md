@@ -27,10 +27,13 @@ channel. With the Roland kit loaded, command N plays Retrocade's `AudioN` instea
 Retrocade's driver used), the 8039's DAC is muted and the kit is mixed to the centre. **D** (or a click of the
 right stick) switches between the Roland kit and the original 8039 drums at any time; the choice is remembered.
 
+The Roland samples are far hotter than the 8039's, so the kit is mixed a little under the original drums
+(measured by RMS over a game). **-** and **=** turn the kit down / up in 10% steps (0-200%, remembered).
+
 ## Controls
 
 Arrows move, Z / Space / Left Ctrl fire, 5 coin, 1 / 2 start, L widescreen / original upright,
-P Gyruss+ panels on / off, D drums (Roland / original), F11 full screen, Esc quit, 9 service.
+P Gyruss+ panels on / off, D drums (Roland / original), - / = Roland drum level, F11 full screen, Esc quit, 9 service.
 
 **Gamepad:** D-pad / left stick move, A or B fire, Select = coin, Start = 1 player, X or Y = 2 players,
 right bumper = change view, left bumper = Gyruss+ panels, right-stick click = drums, hold Select + Start for a
