@@ -31,10 +31,19 @@ Like Retrocade's driver (read out of RETRO.EXE), the kit plays on one drum chann
 drum that was sounding, and command 0 stops it. The level was matched against a recording of Retrocade
 (hi-hat band against melody band). **-** and **=** turn the kit down / up in 10% steps (0-200%, remembered).
 
+## Sound effects and bass
+
+Two of the game's effects - the swoop when a wave flies in from the centre and the shot - play a channel of the
+second sound chip with a tone period of 0 and the envelope generator on. The real chip treats period 0 as 1,
+so the envelope comes out as a buzz: on the shot a 1.8 second falling drone, on the wave entrance a pulsing
+low buzz. Retrocade played those channels silent, which is the sound in its videos. **S** switches between
+**Retrocade style** (default) and **arcade chip**. **B** switches the bass between **cabinet** (default, a
+roll-off below ~110 Hz like an arcade amp and speaker, matched against a Retrocade recording) and **full range**.
+
 ## Controls
 
 Arrows move, Z / Space / Left Ctrl fire, 5 coin, 1 / 2 start, L widescreen / original upright,
-P Gyruss+ panels on / off, D drums (Roland / original), - / = Roland drum level, F11 full screen, Esc quit, 9 service.
+P Gyruss+ panels on / off, D drums (Roland / original), - / = Roland drum level, S effects style, B bass, F11 full screen, Esc quit, 9 service.
 
 **Gamepad:** D-pad / left stick move, A or B fire, Select = coin, Start = 1 player, X or Y = 2 players,
 right bumper = change view, left bumper = Gyruss+ panels, right-stick click = drums, hold Select + Start for a
@@ -44,7 +53,7 @@ second to quit.
 
 The game itself is never changed - Plus only adds read-outs in the widescreen side panels. For the plain
 original: **P** switches the panels off, **L** gives the original upright picture, **D** the original drums, or
-start with `-classic` (upright, no panels, 8039 drums). `-plus` goes back to widescreen with panels.
+start with `-classic` (upright, no panels, 8039 drums, arcade chip effects, full range bass). `-plus` goes back to widescreen with panels.
 
 Widescreen puts the 224x216 play area in the middle of a 384x216 canvas and moves the HUD (scores, stage,
 reserve ships, credits) into the side bars. Plus shows:

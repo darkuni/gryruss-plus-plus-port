@@ -32,8 +32,10 @@ func main() {
 	two := flag.Bool("two", false, "start a 2 player game")
 	flag.Bool("inf", false, "infinite lives")
 	flag.IntVar(&board.MuteChip, "mutechip", 0, "mute one AY chip 1-5")
+	cab := flag.Bool("cab", true, "cabinet bass roll-off")
+	retro := flag.Bool("retro", true, "Retrocade-style zero-period tones")
 	nod := flag.Bool("nodrum", false, "mute all drums")
-	gain := flag.Float64("gain", 0.8, "kit gain")
+	gain := flag.Float64("gain", 0.9, "kit gain")
 	flag.Parse()
 	r, err := assets.Load(*rom)
 	if err != nil {
@@ -47,6 +49,8 @@ func main() {
 	}
 	b.OnDrum = func(v byte) { dr[v]++; b.TriggerDrum(int(v)) }
 	tr.Attach(b)
+	b.Cabinet = *cab
+	b.SetRetroSFX(*retro)
 	if *nod {
 		b.SetKit(nil)
 		b.DrumMute = true

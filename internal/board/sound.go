@@ -1,6 +1,9 @@
 package board
 
-import "sync"
+import (
+	"math"
+	"sync"
+)
 
 // SampleRate is the audio output rate.
 const SampleRate = 44100
@@ -10,19 +13,17 @@ const ayTickHz = 3579545.0 / 2 / 8
 // sound mixes the five AY-3-8910s, their RC filters and the drum channel
 // into stereo the way the board's discrete mixer does.
 type sound struct {
-	mu     sync.Mutex
-	out    []float32 // interleaved L,R
-	acc    float64
-	sumL   float64
-	sumR   float64
-	n      int
-	lp     [6]float64
-	hpXL   float64
-	hpYL   float64
-	hpXR   float64
-	hpYR   float64
-	voices []voice
-	pos    float64
+	mu       sync.Mutex
+	out      []float32 // interleaved L,R
+	acc      float64
+	sumL     float64
+	sumR     float64
+	n        int
+	lp       [6]float64
+	hpL, hpR biquad
+	lpL, lpR float64
+	voices   []voice
+	pos      float64
 }
 
 type voice struct {
@@ -125,16 +126,55 @@ func (s *sound) tick(b *Board) {
 		l := s.sumL / float64(s.n)
 		r := s.sumR / float64(s.n)
 		s.sumL, s.sumR, s.n = 0, 0, 0
-		// DC removal (coupling capacitor)
-		yl := l - s.hpXL + 0.995*s.hpYL
-		s.hpXL, s.hpYL = l, yl
-		yr := r - s.hpXR + 0.995*s.hpYR
-		s.hpXR, s.hpYR = r, yr
+		// the mixer's 0.1uF output capacitor rolls off the top (~10 kHz)
+		s.lpL += mixLP * (l - s.lpL)
+		s.lpR += mixLP * (r - s.lpR)
+		// coupling capacitor, and with Cabinet on the bass roll-off of an
+		// arcade amp and speaker
+		hp := &hpFlat
+		if b.Cabinet {
+			hp = &hpCab
+		}
+		yl := s.hpL.run(hp, s.lpL)
+		yr := s.hpR.run(hp, s.lpR)
 		s.mu.Lock()
 		s.out = append(s.out, clip(yl*1.8), clip(yr*1.8))
 		s.mu.Unlock()
 	}
 }
+
+// biquad is a second-order filter section (direct form I).
+type biquad struct{ x1, x2, y1, y2 float64 }
+
+type coefs struct{ b0, b1, b2, a1, a2 float64 }
+
+func (q *biquad) run(c *coefs, x float64) float64 {
+	y := c.b0*x + c.b1*q.x1 + c.b2*q.x2 - c.a1*q.y1 - c.a2*q.y2
+	q.x2, q.x1 = q.x1, x
+	q.y2, q.y1 = q.y1, y
+	return y
+}
+
+// highpass returns Butterworth high-pass coefficients for fc at SampleRate.
+func highpass(fc float64) coefs {
+	w := 2 * math.Pi * fc / SampleRate
+	cw, sw := math.Cos(w), math.Sin(w)
+	alpha := sw / math.Sqrt2
+	a0 := 1 + alpha
+	return coefs{
+		b0: (1 + cw) / 2 / a0, b1: -(1 + cw) / a0, b2: (1 + cw) / 2 / a0,
+		a1: -2 * cw / a0, a2: (1 - alpha) / a0,
+	}
+}
+
+var (
+	hpFlat = highpass(20)
+	hpCab  = highpass(CabinetHz)
+	mixLP  = 1 - math.Exp(-2*math.Pi*10600/SampleRate)
+)
+
+// CabinetHz is the bass roll-off used with Board.Cabinet.
+const CabinetHz = 110
 
 func clip(v float64) float32 {
 	if v > 1 {

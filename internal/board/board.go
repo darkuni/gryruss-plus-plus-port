@@ -89,6 +89,10 @@ type Board struct {
 	// are mixed in instead).
 	DrumMute bool
 
+	// Cabinet rolls the bass off below ~110 Hz the way an arcade cabinet's
+	// amp and speaker do. Off gives the board's full-range output.
+	Cabinet bool
+
 	// OnSound, if set, sees every sound command the game sends.
 	OnSound func(cmd byte)
 
@@ -385,4 +389,12 @@ func (b *Board) runLine() {
 		}
 	}
 	b.line = (b.line + 1) % Lines
+}
+
+// SetRetroSFX switches the Retrocade-style handling of zero-period tones
+// on all five sound chips (see ay8910.Chip.ZeroPeriodSilent).
+func (b *Board) SetRetroSFX(on bool) {
+	for _, c := range b.AY {
+		c.ZeroPeriodSilent = on
+	}
 }

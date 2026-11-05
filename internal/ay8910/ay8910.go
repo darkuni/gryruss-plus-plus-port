@@ -15,6 +15,12 @@ type Chip struct {
 	Reg  [16]byte
 	addr byte
 
+	// ZeroPeriodSilent mutes a channel whose tone is enabled with a period
+	// of 0. The real chip treats 0 as 1 (an ultrasonic carrier under the
+	// envelope, so the envelope is heard as a buzz); Retrocade's emulation
+	// played those channels silent.
+	ZeroPeriodSilent bool
+
 	PortARead  func() byte
 	PortBWrite func(v byte)
 
@@ -166,6 +172,9 @@ func (c *Chip) Output() (a, b, ch float64) {
 		noiseOff := mix>>uint(i+3)&1 != 0
 		on := (c.out[i] || toneOff) && (c.noise || noiseOff)
 		if !on {
+			continue
+		}
+		if c.ZeroPeriodSilent && !toneOff && c.Reg[2*i] == 0 && c.Reg[2*i+1]&15 == 0 {
 			continue
 		}
 		vol := c.Reg[8+i]
